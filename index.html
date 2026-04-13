@@ -52,7 +52,7 @@
 const username = "CuroNova";
 const repo = "shared-files";
 
-let allFiles = []; // 검색용 전체 파일 목록
+let allFiles = [];
 
 async function fetchFiles(path) {
   const url = `https://api.github.com/repos/${username}/${repo}/contents/${path}`;
@@ -60,64 +60,109 @@ async function fetchFiles(path) {
   return await res.json();
 }
 
-// 트리 + 재귀
-async function renderFolder(path, container) {
-  const items = await fetchFiles(path);
+// ⭐ 부모 폴더 열기
+function openParents(element) {
+  let parent = element.parentElement;
 
-  for (const item of items) {
-    if (item.type === "dir") {
-      const folder = document.createElement("div");
-      folder.className = "folder";
-      folder.textContent = "📂 " + item.name;
+  while (parent) {
+    if (parent.classList.contains("children")) {
+      parent.style.display = "block";
 
-      const children = document.createElement("div");
-      children.className = "children";
-
-      folder.onclick = () => {
-        const isOpen = children.style.display === "block";
-        children.style.display = isOpen ? "none" : "block";
-        folder.classList.toggle("open");
-      };
-
-      container.appendChild(folder);
-      container.appendChild(children);
-
-      await renderFolder(item.path, children);
-
-    } else if (item.type === "file") {
-      const fileDiv = document.createElement("div");
-      fileDiv.className = "file";
-
-      const link = document.createElement("a");
-      link.href = item.download_url;
-      link.textContent = "📄 " + item.name;
-
-      fileDiv.appendChild(link);
-      container.appendChild(fileDiv);
-
-      // 검색용 데이터 저장
-      allFiles.push({
-        name: item.name.toLowerCase(),
-        element: fileDiv
-      });
+      const folder = parent.previousElementSibling;
+      if (folder && folder.classList.contains("folder")) {
+        folder.classList.add("open");
+      }
     }
+    parent = parent.parentElement;
   }
 }
 
-// 검색 기능
+// ⭐ 모든 폴더 닫기 (검색 초기화용)
+function closeAllFolders() {
+  document.querySelectorAll(".children").forEach(el => {
+    el.style.display = "none";
+  });
+  document.querySelectorAll(".folder").forEach(el => {
+    el.classList.remove("open");
+  });
+}
+
+// ⭐ 정렬 + 트리 + 재귀
+async function renderFolder(path, container) {
+  const items = await fetchFiles(path);
+
+  const folders = items.filter(item => item.type === "dir");
+  const files = items.filter(item => item.type === "file");
+
+  // ⭐ 이름순 정렬
+  folders.sort((a, b) => a.name.localeCompare(b.name));
+  files.sort((a, b) => a.name.localeCompare(b.name));
+
+  // 폴더 먼저
+  for (const item of folders) {
+    const folder = document.createElement("div");
+    folder.className = "folder";
+    folder.textContent = "📂 " + item.name;
+
+    const children = document.createElement("div");
+    children.className = "children";
+
+    folder.onclick = () => {
+      const isOpen = children.style.display === "block";
+      children.style.display = isOpen ? "none" : "block";
+      folder.classList.toggle("open");
+    };
+
+    container.appendChild(folder);
+    container.appendChild(children);
+
+    await renderFolder(item.path, children);
+  }
+
+  // 파일 나중
+  for (const item of files) {
+    const fileDiv = document.createElement("div");
+    fileDiv.className = "file";
+
+    const link = document.createElement("a");
+    link.href = item.download_url;
+    link.textContent = "📄 " + item.name;
+
+    fileDiv.appendChild(link);
+    container.appendChild(fileDiv);
+
+    allFiles.push({
+      name: item.name.toLowerCase(),
+      element: fileDiv
+    });
+  }
+}
+
+// ⭐ 검색 기능
 function setupSearch() {
   const input = document.getElementById("search");
 
   input.addEventListener("input", () => {
     const keyword = input.value.toLowerCase();
 
+    // 검색 초기화
+    closeAllFolders();
+
     allFiles.forEach(file => {
       if (file.name.includes(keyword)) {
         file.element.style.display = "block";
+        openParents(file.element); // ⭐ 자동 열림
       } else {
         file.element.style.display = "none";
       }
     });
+
+    // 검색어 없으면 원상복구
+    if (keyword === "") {
+      allFiles.forEach(file => {
+        file.element.style.display = "block";
+      });
+    }
   });
 }
 
