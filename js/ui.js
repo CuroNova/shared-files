@@ -8,8 +8,8 @@ export async function renderFolder(path, container) {
   const folders = items.filter(i => i.type === "dir");
   const files = items.filter(i => i.type === "file");
 
-  folders.sort((a,b)=>a.name.localeCompare(b.name));
-  files.sort((a,b)=>a.name.localeCompare(b.name));
+  folders.sort((a, b) => a.name.localeCompare(b.name));
+  files.sort((a, b) => a.name.localeCompare(b.name));
 
   for (const item of folders) {
     const folder = document.createElement("div");
@@ -26,6 +26,7 @@ export async function renderFolder(path, container) {
     };
 
     container.append(folder, children);
+
     await renderFolder(item.path, children);
   }
 
@@ -38,6 +39,16 @@ export async function renderFolder(path, container) {
     link.textContent = "📄 " + item.name;
 
     div.appendChild(link);
+
+    // ⭐ 선택 강조 기능 추가
+    div.onclick = () => {
+      document.querySelectorAll(".file").forEach(f => {
+        f.classList.remove("selected");
+      });
+
+      div.classList.add("selected");
+    };
+
     container.appendChild(div);
 
     allFiles.push({

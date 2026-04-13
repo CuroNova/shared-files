@@ -5,51 +5,96 @@ body {
     "Apple SD Gothic Neo",
     "Noto Sans KR",
     sans-serif;
+
+  background: #1c1c1e;
+  color: #e5e5ea;
+  padding: 30px;
 }
 
+/* 제목 */
 h1 {
   text-align: center;
+  font-weight: 600;
   color: #ffffff;
 }
 
+/* 검색창 */
 #search {
-  display:block;
+  display: block;
   margin: 20px auto;
-  padding:10px;
-  width:300px;
-  border-radius:8px;
-  border:1px solid #444;
-  background:#1e1e1e;
-  color:#fff;
+  padding: 12px;
+  width: 320px;
+  border-radius: 12px;
+  border: none;
+  background: #2c2c2e;
+  color: #fff;
+  outline: none;
+  transition: 0.2s;
 }
 
+#search:focus {
+  background: #3a3a3c;
+}
+
+/* 폴더 */
 .folder {
   cursor: pointer;
-  margin: 5px 0;
-  font-weight: bold;
-  color: #ddd;
+  margin: 6px 0;
+  font-weight: 500;
+  padding: 6px 10px;
+  border-radius: 8px;
+  transition: 0.2s;
 }
 
 .folder::before { content: "▶ "; }
 .folder.open::before { content: "▼ "; }
 
+/* ⭐ hover */
+.folder:hover {
+  background: rgba(255,255,255,0.08);
+}
+
+/* ⭐ 클릭 느낌 */
+.folder:active {
+  transform: scale(0.97);
+}
+
+/* 자식 */
 .children {
-  margin-left: 20px;
+  margin-left: 18px;
   display: none;
 }
 
+/* 파일 */
 .file {
-  background:#1e1e1e;
-  padding:8px;
-  margin:5px 0;
-  border-radius:8px;
+  padding: 8px 12px;
+  margin: 4px 0;
+  border-radius: 10px;
+  background: transparent;
+  transition: 0.2s;
 }
 
+/* ⭐ hover */
+.file:hover {
+  background: rgba(255,255,255,0.08);
+}
+
+/* ⭐ 클릭 */
+.file:active {
+  transform: scale(0.97);
+}
+
+.file.selected {
+  background: rgba(10,132,255,0.3);
+}
+
+/* 링크 */
 a {
-  text-decoration:none;
-  color:#4dabf7;
+  text-decoration: none;
+  color: #0a84ff;
+  font-weight: 400;
 }
 
 a:hover {
-  color:#82cfff;
+  color: #4da3ff;
 }
