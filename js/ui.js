@@ -1,59 +1,48 @@
-import { fetchFiles } from "./api.js";
-
 export let allFiles = [];
 
-export async function renderFolder(path, container) {
-  const items = await fetchFiles(path);
+export function render(items, container) {
+  for (const item of items) {
+    if (item.type === "folder") {
+      const folder = document.createElement("div");
+      folder.className = "folder";
+      folder.textContent = "📂 " + item.name;
 
-  const folders = items.filter(i => i.type === "dir");
-  const files = items.filter(i => i.type === "file");
+      const children = document.createElement("div");
+      children.className = "children";
 
-  folders.sort((a, b) => a.name.localeCompare(b.name));
-  files.sort((a, b) => a.name.localeCompare(b.name));
+      folder.onclick = () => {
+        const open = children.style.display === "block";
+        children.style.display = open ? "none" : "block";
+        folder.classList.toggle("open");
+      };
 
-  for (const item of folders) {
-    const folder = document.createElement("div");
-    folder.className = "folder";
-    folder.textContent = "📂 " + item.name;
+      container.append(folder, children);
 
-    const children = document.createElement("div");
-    children.className = "children";
+      render(item.children, children);
+    } else {
+      const div = document.createElement("div");
+      div.className = "file";
 
-    folder.onclick = () => {
-      const open = children.style.display === "block";
-      children.style.display = open ? "none" : "block";
-      folder.classList.toggle("open");
-    };
+      const a = document.createElement("a");
+      a.href = item.path;
+      a.textContent = "📄 " + item.name;
 
-    container.append(folder, children);
+      div.appendChild(a);
 
-    await renderFolder(item.path, children);
-  }
+      // 선택 강조
+      div.onclick = () => {
+        document.querySelectorAll(".file").forEach(f => {
+          f.classList.remove("selected");
+        });
+        div.classList.add("selected");
+      };
 
-  for (const item of files) {
-    const div = document.createElement("div");
-    div.className = "file";
+      container.appendChild(div);
 
-    const link = document.createElement("a");
-    link.href = item.download_url;
-    link.textContent = "📄 " + item.name;
-
-    div.appendChild(link);
-
-    // ⭐ 선택 강조 기능 추가
-    div.onclick = () => {
-      document.querySelectorAll(".file").forEach(f => {
-        f.classList.remove("selected");
+      allFiles.push({
+        name: item.name.toLowerCase(),
+        element: div
       });
-
-      div.classList.add("selected");
-    };
-
-    container.appendChild(div);
-
-    allFiles.push({
-      name: item.name.toLowerCase(),
-      element: div
-    });
+    }
   }
 }
