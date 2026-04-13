@@ -1,8 +1,10 @@
 body {
-  font-family: Arial;
-  background: #121212;
-  color: #e0e0e0;
-  padding: 30px;
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    "Apple SD Gothic Neo",
+    "Noto Sans KR",
+    sans-serif;
 }
 
 h1 {
