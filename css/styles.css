@@ -1,0 +1,44 @@
+body {
+  margin: 0;
+  font-family: sans-serif;
+  background: #0f0f0f;
+  color: #eaeaea;
+}
+
+.hidden { display: none; }
+
+header {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  background: #1a1a1a;
+}
+
+.logo {
+  width: 32px;
+  margin-right: 10px;
+}
+
+input {
+  background: #222;
+  border: 1px solid #333;
+  color: white;
+  padding: 6px;
+  margin: 4px;
+}
+
+button {
+  background: #333;
+  border: none;
+  color: white;
+  padding: 6px;
+  cursor: pointer;
+}
+
+.file, .folder {
+  padding-left: 20px;
+}
+
+.highlight {
+  background: #444;
+}

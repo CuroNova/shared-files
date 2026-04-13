@@ -1,19 +1,12 @@
-import { allFiles } from "./ui.js";
+document.getElementById("search").addEventListener("input", (e) => {
+  const value = e.target.value.toLowerCase();
+  const items = document.querySelectorAll(".file, .folder");
 
-export function setupSearch() {
-  const input = document.getElementById("search");
-
-  input.addEventListener("input", () => {
-    const keyword = input.value.toLowerCase();
-
-    if (!keyword) {
-      allFiles.forEach(f => f.element.style.display = "block");
-      return;
+  items.forEach(el => {
+    if (el.innerText.toLowerCase().includes(value)) {
+      el.classList.add("highlight");
+    } else {
+      el.classList.remove("highlight");
     }
-
-    allFiles.forEach(f => {
-      f.element.style.display =
-        f.name.includes(keyword) ? "block" : "none";
-    });
   });
-}
+});
