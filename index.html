@@ -9,13 +9,18 @@
 </head>
 <body>
 
-<h1>📁 Shared Files</h1>
+<div id="lock">
+  <h2>🔒 비밀번호 입력</h2>
+  <input type="password" id="password" placeholder="비밀번호">
+  <button onclick="checkPassword()">확인</button>
+</div>
 
-<input type="text" id="search" placeholder="파일 검색...">
-
-<div id="content"></div>
+<div id="app" style="display:none;">
+  <h1>📁 Shared Files</h1>
+  <input type="text" id="search" placeholder="파일 검색...">
+  <div id="content"></div>
+</div>
 
 <script src="script.js"></script>
-
 </body>
 </html>
