@@ -1,7 +1,8 @@
-export let allFiles = [];
+import { allFiles } from "./search.js";
 
-export function render(items, container) {
-  for (const item of items) {
+export async function renderFolder(data, container) {
+  for (const item of data) {
+
     if (item.type === "folder") {
       const folder = document.createElement("div");
       folder.className = "folder";
@@ -18,25 +19,18 @@ export function render(items, container) {
 
       container.append(folder, children);
 
-      render(item.children, children);
-    } else {
+      await renderFolder(item.children, children);
+    }
+
+    if (item.type === "file") {
       const div = document.createElement("div");
       div.className = "file";
 
-      const a = document.createElement("a");
-      a.href = item.path;
-      a.textContent = "📄 " + item.name;
+      const link = document.createElement("a");
+      link.href = item.path.replace("files/", "");
+      link.textContent = "📄 " + item.name;
 
-      div.appendChild(a);
-
-      // 선택 강조
-      div.onclick = () => {
-        document.querySelectorAll(".file").forEach(f => {
-          f.classList.remove("selected");
-        });
-        div.classList.add("selected");
-      };
-
+      div.appendChild(link);
       container.appendChild(div);
 
       allFiles.push({
