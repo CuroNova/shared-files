@@ -6,22 +6,53 @@
 <style>
   body { font-family: Arial; background:#f5f6fa; padding:30px; }
   h1 { text-align:center; }
-  .category { margin-top:20px; margin-left:10px; }
-  .file {
-    background:white; padding:10px;
-    margin:5px 0; border-radius:8px;
+
+  #search {
+    display:block;
+    margin: 20px auto;
+    padding:10px;
+    width:300px;
+    border-radius:8px;
+    border:1px solid #ccc;
   }
+
+  .folder {
+    cursor: pointer;
+    margin: 5px 0;
+    font-weight: bold;
+  }
+
+  .folder::before { content: "▶ "; }
+  .folder.open::before { content: "▼ "; }
+
+  .children {
+    margin-left: 20px;
+    display: none;
+  }
+
+  .file {
+    background:white;
+    padding:8px;
+    margin:5px 0;
+    border-radius:8px;
+  }
+
   a { text-decoration:none; color:#2f80ed; }
 </style>
 </head>
 <body>
 
 <h1>📁 Shared Files</h1>
+
+<input type="text" id="search" placeholder="파일 검색...">
+
 <div id="content"></div>
 
 <script>
 const username = "CuroNova";
 const repo = "shared-files";
+
+let allFiles = []; // 검색용 전체 파일 목록
 
 async function fetchFiles(path) {
   const url = `https://api.github.com/repos/${username}/${repo}/contents/${path}`;
@@ -29,34 +60,71 @@ async function fetchFiles(path) {
   return await res.json();
 }
 
-// ⭐ 핵심: 재귀 함수
-async function renderFolder(path, container, level = 2) {
+// 트리 + 재귀
+async function renderFolder(path, container) {
   const items = await fetchFiles(path);
 
   for (const item of items) {
     if (item.type === "dir") {
-      const folderDiv = document.createElement("div");
-      folderDiv.className = "category";
-      folderDiv.innerHTML = `<h${Math.min(level,6)}>📂 ${item.name}</h${Math.min(level,6)}>`;
-      
-      container.appendChild(folderDiv);
+      const folder = document.createElement("div");
+      folder.className = "folder";
+      folder.textContent = "📂 " + item.name;
 
-      // 하위 폴더 계속 탐색
-      await renderFolder(item.path, folderDiv, level + 1);
+      const children = document.createElement("div");
+      children.className = "children";
+
+      folder.onclick = () => {
+        const isOpen = children.style.display === "block";
+        children.style.display = isOpen ? "none" : "block";
+        folder.classList.toggle("open");
+      };
+
+      container.appendChild(folder);
+      container.appendChild(children);
+
+      await renderFolder(item.path, children);
 
     } else if (item.type === "file") {
       const fileDiv = document.createElement("div");
       fileDiv.className = "file";
-      fileDiv.innerHTML = `<a href="${item.download_url}">📄 ${item.name}</a>`;
-      
+
+      const link = document.createElement("a");
+      link.href = item.download_url;
+      link.textContent = "📄 " + item.name;
+
+      fileDiv.appendChild(link);
       container.appendChild(fileDiv);
+
+      // 검색용 데이터 저장
+      allFiles.push({
+        name: item.name.toLowerCase(),
+        element: fileDiv
+      });
     }
   }
+}
+
+// 검색 기능
+function setupSearch() {
+  const input = document.getElementById("search");
+
+  input.addEventListener("input", () => {
+    const keyword = input.value.toLowerCase();
+
+    allFiles.forEach(file => {
+      if (file.name.includes(keyword)) {
+        file.element.style.display = "block";
+      } else {
+        file.element.style.display = "none";
+      }
+    });
+  });
 }
 
 async function load() {
   const container = document.getElementById("content");
   await renderFolder("files", container);
+  setupSearch();
 }
 
 load();
