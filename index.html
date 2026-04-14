@@ -3,35 +3,43 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Shared Files</title>
+  <title>File Explorer</title>
   <link rel="stylesheet" href="css/style.css"/>
 </head>
+
 <body>
-
-<div id="login-screen">
-  <h2>Login</h2>
-  <input id="nickname" placeholder="닉네임" />
-  <input id="password" type="password" placeholder="비밀번호" />
-  <button onclick="login()">Enter</button>
-  <p id="error"></p>
-</div>
-
-<div id="app" class="hidden">
   <header>
-    <img src="images/logo.png" class="logo"/>
-    <input id="search" placeholder="파일 / 폴더 검색"/>
-    <button onclick="toggleTheme()">
-      <img src="images/theme.png"/>
-    </button>
+    <div id="logo" class="logo"></div>
+
+    <button id="homeBtn">처음으로</button>
+
+    <div class="right">
+      <a href="https://github.com/CuroNova" target="_blank">by CuroNova</a>
+    </div>
   </header>
 
-  <main id="file-tree"></main>
-</div>
+  <!-- 초기 화면 -->
+  <section id="welcomeScreen">
+    <img src="images/logo.png" class="bigLogo"/>
+    <h1>환영합니다</h1>
+    <button id="connectBtn">Connect</button>
+  </section>
 
-<script src="js/auth.js"></script>
-<script src="js/app.js"></script>
-<script src="js/fileTree.js"></script>
-<script src="js/search.js"></script>
+  <!-- 탐색기 -->
+  <section id="explorer" class="hidden">
+    <aside id="sidebar"></aside>
 
+    <main id="content">
+      <div id="searchBar">
+        <input id="searchInput" placeholder="파일 검색..." />
+      </div>
+
+      <div id="fileView"></div>
+    </main>
+  </section>
+
+  <script src="js/tree.js"></script>
+  <script src="js/search.js"></script>
+  <script src="js/app.js"></script>
 </body>
 </html>
