@@ -2,7 +2,7 @@ name: Generate Tree
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
   build:
@@ -17,7 +17,7 @@ jobs:
 
       - run: node generate-tree.js
 
-      - name: Upload artifact
+      - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: .
