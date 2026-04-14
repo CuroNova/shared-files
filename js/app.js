@@ -1,48 +1,24 @@
-let treeData = null;
-
-const sidebar = document.getElementById("sidebar");
-const fileView = document.getElementById("fileView");
-
-document.getElementById("connectBtn").onclick = async () => {
-  document.getElementById("welcomeScreen").style.display = "none";
-  document.getElementById("explorer").classList.remove("hidden");
-
-  const res = await fetch("data/tree.json");
-  treeData = await res.json();
-
-  sidebar.innerHTML = "";
-  createNode(treeData, sidebar);
+let state = {
+  tree: null
 };
 
-document.getElementById("logo").onclick = () => {
-  document.body.classList.toggle("light");
-};
+const app = document.getElementById("app");
 
-document.getElementById("homeBtn").onclick = () => {
-  document.getElementById("welcomeScreen").style.display = "flex";
-  document.getElementById("explorer").classList.add("hidden");
-};
+function setPage(page) {
+  app.innerHTML = "";
 
-/* 검색 */
-document.getElementById("searchInput").addEventListener("input", (e) => {
-  const value = e.target.value.trim();
-
-  if (!value) {
-    fileView.innerHTML = "";
-    sidebar.innerHTML = "";
-    createNode(treeData, sidebar);
-    return;
+  if (page === "welcome") {
+    renderWelcome();
   }
 
-  const results = searchTree(treeData, value);
+  if (page === "explorer") {
+    renderExplorer(state.tree);
+  }
+}
 
-  sidebar.innerHTML = "";
-  fileView.innerHTML = "";
+async function loadTree() {
+  const res = await fetch("data/tree.json");
+  state.tree = await res.json();
+}
 
-  results.forEach(f => {
-    const div = document.createElement("div");
-    div.className = "highlight";
-    div.textContent = f.path;
-    fileView.appendChild(div);
-  });
-});
+setPage("welcome");

@@ -1,37 +1,32 @@
 function createNode(node, container) {
-  const wrapper = document.createElement("div");
+  const el = document.createElement("div");
 
   if (node.type === "folder") {
     const folder = document.createElement("div");
-    folder.className = "folder";
     folder.textContent = "📁 " + node.name;
 
     const children = document.createElement("div");
-    children.className = "children hidden";
+    children.style.paddingLeft = "15px";
+    children.style.display = "none";
 
     folder.onclick = () => {
-      children.classList.toggle("hidden");
+      children.style.display =
+        children.style.display === "none" ? "block" : "none";
     };
 
-    wrapper.appendChild(folder);
+    el.appendChild(folder);
 
-    if (node.children) {
-      node.children.forEach(child => {
-        createNode(child, children);
-      });
-    }
+    node.children?.forEach(child => {
+      createNode(child, children);
+    });
 
-    wrapper.appendChild(children);
-  }
-
-  else {
+    el.appendChild(children);
+  } else {
     const file = document.createElement("div");
-    file.className = "file";
     file.textContent = "📄 " + node.name;
-    file.dataset.path = node.path;
 
-    wrapper.appendChild(file);
+    el.appendChild(file);
   }
 
-  container.appendChild(wrapper);
+  container.appendChild(el);
 }

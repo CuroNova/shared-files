@@ -17,9 +17,7 @@ jobs:
 
       - run: node generate-tree.js
 
-      - run: |
-          git config user.name github-actions
-          git config user.email github-actions@github.com
-          git add data/tree.json
-          git commit -m "update tree"
-          git push
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: data/tree.json
