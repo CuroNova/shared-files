@@ -2,7 +2,7 @@ export default class WelcomeView {
     static render() {
         return `
             <div class="welcome">
-                <img src="./images/logo.png" width="120"/>
+                <img src="../images/logo.png" width="120"/>
                 <button id="connectBtn">Connect</button>
             </div>
         `;
