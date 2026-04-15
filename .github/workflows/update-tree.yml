@@ -1,9 +1,8 @@
-name: update-tree
+name: Update Tree JSON
 
 on:
   push:
-    paths:
-      - "sharedfiles/**"
+    branches: [ "main" ]
 
 jobs:
   build:
@@ -13,43 +12,25 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Generate tree.json using bash + jq
+      - name: Generate tree.json
         run: |
           mkdir -p json
+          echo "Generating tree..."
 
-          ROOT="sharedfiles"
-
-          # index 생성
-          find "$ROOT" -type f ! -path "*/.*" | jq -R -s '
+          find sharedfiles -type f | jq -R -s '
             split("\n")
             | map(select(length > 0))
             | map({
-                name: split("/")[-1],
-                path: .,
-                ext: (. | split(".")[-1])
+                type: "file",
+                name: split("/") | last,
+                path: .
               })
-          ' > json/index.tmp.json
+          ' > json/tree.json
 
-          # tree meta 생성
-          CREATED=$(date -Iseconds)
-
-          jq -n \
-            --slurpfile index json/index.tmp.json \
-            --arg root "$ROOT" \
-            --arg created "$CREATED" \
-            '{
-              meta: {
-                root: $root,
-                created: $created
-              },
-              tree: [],
-              index: $index[0]
-            }' > json/tree.json
-
-      - name: Commit & push
+      - name: Commit changes
         run: |
-          git config user.name github-actions
-          git config user.email github-actions@github.com
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
           git add json/tree.json
-          git commit -m "auto: update tree.json" || exit 0
+          git commit -m "auto update tree.json" || exit 0
           git push

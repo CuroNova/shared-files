@@ -1,55 +1,38 @@
-import { loadTree } from "../model/tree.js";
-import { search } from "../service/search.js";
-import { toast } from "../js/toast.js";
+import SearchService from "../service/searchService.js";
 
-let cache = null;
+export default class MainView {
+    static render(data, keyword = "") {
+        const list = SearchService.search(data.index, keyword);
 
-export async function renderMain(root) {
-  if (!cache) cache = await loadTree();
+        const items = list.map(item => {
+            const name = SearchService.highlight(item.name, keyword);
 
-  root.innerHTML = `
-    <header>
-      <img id="profile" src="/shared-files/images/profile.png" width="28"/>
-      <div id="github">by CuroNova</div>
-    </header>
+            if (item.type === "file") {
+                return `
+                    <div class="file">
+                        <span>${name}</span>
+                        <a href="./sharedfiles/${SearchService.encodePath(item.path)}" download>📥</a>
+                    </div>
+                `;
+            }
 
-    <div class="container">
-      <input id="search" placeholder="search"/>
-      <div id="list"></div>
-    </div>
+            return `
+                <div class="folder">
+                    <span>${name}</span>
+                </div>
+            `;
+        }).join("");
 
-    <footer>
-      <div>Home | About | CC BY 4.0</div>
-    </footer>
-  `;
+        return `
+            <input class="search" id="searchBar" placeholder="Search..."/>
+            <div id="list">${items}</div>
+        `;
+    }
 
-  document.getElementById("github").onclick =
-    () => window.open("https://github.com/CuroNova");
-
-  document.getElementById("profile").onclick =
-    () => {
-      navigator.clipboard.writeText(location.href);
-      toast("복사 성공");
-    };
-
-  const input = document.getElementById("search");
-  const list = document.getElementById("list");
-
-  const top8 = [...cache.index]
-    .sort((a, b) => a.name.localeCompare(b.name, "en"))
-    .slice(0, 8);
-
-  function render(items) {
-    list.innerHTML = items.map(i =>
-      `<div class="item">${i.name}</div>`
-    ).join("");
-  }
-
-  render(top8);
-
-  input.addEventListener("input", (e) => {
-    const q = e.target.value;
-    if (!q) return render(top8);
-    render(search(cache, q));
-  });
+    static bind(onSearch) {
+        const input = document.getElementById("searchBar");
+        input.addEventListener("input", (e) => {
+            onSearch(e.target.value);
+        });
+    }
 }

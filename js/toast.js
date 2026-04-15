@@ -1,16 +1,14 @@
 export function toast(msg) {
-  const el = document.createElement("div");
-  el.textContent = msg;
-  el.style = `
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #333;
-    padding: 10px 14px;
-    color: #fff;
-    border-radius: 6px;
-  `;
-  document.body.appendChild(el);
-  setTimeout(() => el.remove(), 1200);
+    const div = document.createElement("div");
+    div.innerText = msg;
+    div.style.position = "fixed";
+    div.style.bottom = "20px";
+    div.style.left = "50%";
+    div.style.transform = "translateX(-50%)";
+    div.style.background = "#222";
+    div.style.padding = "10px";
+    div.style.borderRadius = "6px";
+    document.body.appendChild(div);
+
+    setTimeout(() => div.remove(), 1500);
 }
