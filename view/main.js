@@ -1,38 +1,48 @@
-import SearchService from "../service/searchService.js";
+import FileModel from '../model/FileModel.js';
+import FileService from '../service/FileService.js';
 
 export default class MainView {
-    static render(data, keyword = "") {
-        const list = SearchService.search(data.index, keyword);
-
-        const items = list.map(item => {
-            const name = SearchService.highlight(item.name, keyword);
-
-            if (item.type === "file") {
-                return `
-                    <div class="file">
-                        <span>${name}</span>
-                        <a href="./sharedfiles/${SearchService.encodePath(item.path)}" download>📥</a>
-                    </div>
-                `;
-            }
-
-            return `
-                <div class="folder">
-                    <span>${name}</span>
-                </div>
-            `;
-        }).join("");
-
-        return `
-            <input class="search" id="searchBar" placeholder="Search..."/>
-            <div id="list">${items}</div>
-        `;
+    constructor() {
+        this.model = new FileModel();
+        this.el = document.createElement('div');
     }
 
-    static bind(onSearch) {
-        const input = document.getElementById("searchBar");
-        input.addEventListener("input", (e) => {
-            onSearch(e.target.value);
-        });
+    getElement() {
+        this.render();
+        return this.el;
+    }
+
+    async render() {
+        await this.model.fetchData();
+        this.el.innerHTML = `
+            <div class="search-wrap">
+                <input type="text" id="search-input" placeholder="Search Files..." autocomplete="off">
+            </div>
+            <div id="list-container"></div>
+        `;
+        const input = this.el.querySelector('#search-input');
+        input.oninput = (e) => this.handleSearch(e.target.value);
+        this.displayItems(this.model.getInitialFolders());
+    }
+
+    handleSearch(q) {
+        if (!q) return this.displayItems(this.model.getInitialFolders());
+        const filtered = this.model.index.filter(i => i.name.toLowerCase().includes(q.toLowerCase()));
+        this.displayItems(filtered, q);
+    }
+
+    displayItems(items, highlight = "") {
+        const container = this.el.querySelector('#list-container');
+        container.innerHTML = items.map(item => `
+            <div class="item">
+                <span>${this.highlight(item.name, highlight)}</span>
+                ${!item.isFolder ? `<a href="${FileService.encode(item.path)}" download>📥</a>` : '📁'}
+            </div>
+        `).join('');
+    }
+
+    highlight(text, q) {
+        if (!q) return text;
+        return text.replace(new RegExp(`(${q})`, 'gi'), '<mark>$1</mark>');
     }
 }

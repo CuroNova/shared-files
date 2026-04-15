@@ -1,36 +1,29 @@
-name: Update Tree JSON
-
+name: Update File Tree
 on:
   push:
-    branches: [ "main" ]
-
+    paths: ['sharedfiles/**']
+  workflow_dispatch:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
+      - uses: actions/checkout@v3
       - name: Generate tree.json
         run: |
           mkdir -p json
-          echo "Generating tree..."
-
-          find sharedfiles -type f | jq -R -s '
-            split("\n")
-            | map(select(length > 0))
-            | map({
-                type: "file",
-                name: split("/") | last,
-                path: .
-              })
-          ' > json/tree.json
-
-      - name: Commit changes
+          echo '{"meta": {"updated": "'$(date -u)'"}, "index": []}' > json/tree.json
+          find sharedfiles -type f | while read -r filepath; do
+            filename=$(basename "$filepath")
+            relpath="$filepath"
+            ext="${filename##*.}"
+            jq --arg name "$filename" --arg path "$relpath" --arg ext "$ext" \
+            '.index += [{"name": $name, "path": $path, "ext": $ext}]' \
+            json/tree.json > tmp.json && mv tmp.json json/tree.json
+          done
+      - name: Commit and Push
         run: |
-          git config user.name "github-actions"
-          git config user.email "actions@github.com"
+          git config --global user.name "GitHub Action"
+          git config --global user.email "action@github.com"
           git add json/tree.json
-          git commit -m "auto update tree.json" || exit 0
+          git commit -m "chore: update tree data [skip ci]" || exit 0
           git push
