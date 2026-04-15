@@ -1,0 +1,19 @@
+{
+  "meta": {
+    "created": "2026-04-15",
+    "root": "sharedfiles"
+  },
+  "tree": [],
+  "index": [
+    {
+      "name": "sample1.txt",
+      "path": "sample1.txt",
+      "keywords": ["sample"]
+    },
+    {
+      "name": "sample2.txt",
+      "path": "sample2.txt",
+      "keywords": ["sample"]
+    }
+  ]
+}

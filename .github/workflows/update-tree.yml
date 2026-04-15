@@ -1,0 +1,55 @@
+name: update-tree
+
+on:
+  push:
+    paths:
+      - "sharedfiles/**"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Generate tree.json using bash + jq
+        run: |
+          mkdir -p json
+
+          ROOT="sharedfiles"
+
+          # index 생성
+          find "$ROOT" -type f ! -path "*/.*" | jq -R -s '
+            split("\n")
+            | map(select(length > 0))
+            | map({
+                name: split("/")[-1],
+                path: .,
+                ext: (. | split(".")[-1])
+              })
+          ' > json/index.tmp.json
+
+          # tree meta 생성
+          CREATED=$(date -Iseconds)
+
+          jq -n \
+            --slurpfile index json/index.tmp.json \
+            --arg root "$ROOT" \
+            --arg created "$CREATED" \
+            '{
+              meta: {
+                root: $root,
+                created: $created
+              },
+              tree: [],
+              index: $index[0]
+            }' > json/tree.json
+
+      - name: Commit & push
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add json/tree.json
+          git commit -m "auto: update tree.json" || exit 0
+          git push
